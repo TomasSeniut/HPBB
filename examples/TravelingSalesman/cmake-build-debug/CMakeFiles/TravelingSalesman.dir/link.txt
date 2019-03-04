@@ -1,0 +1,1 @@
+/usr/bin/cc -fopenmp -g   CMakeFiles/TravelingSalesman.dir/main.c.o CMakeFiles/TravelingSalesman.dir/utils.c.o CMakeFiles/TravelingSalesman.dir/IO/IO.c.o  -o TravelingSalesman  -L/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/../../build -Wl,-rpath,/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/../../build -lm -lHPBB 

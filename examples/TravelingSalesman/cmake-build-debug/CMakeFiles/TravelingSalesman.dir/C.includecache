@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/DataStructure.h
+
+/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/IO/IO.h
+../DataStructure.h
+/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/DataStructure.h
+
+/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/main.c
+stdio.h
+-
+malloc.h
+-
+IO/IO.h
+/home/tomas/Documents/HyPaBraBo/src/examples/TravelingSalesman/IO/IO.h
+

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libHPBB.a  CMakeFiles/HPBB.dir/HPBB.c.o CMakeFiles/HPBB.dir/DataStructure/LinkedQueue.c.o CMakeFiles/HPBB.dir/DataStructure/ParallelStack.c.o CMakeFiles/HPBB.dir/Solver/Solver.c.o
+/usr/bin/ranlib libHPBB.a

@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/HPBB.h
+
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/Data.h
+
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/LinkedQueue.h
+Data.h
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/Data.h
+
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/ParallelStack.h
+Data.h
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/Data.h
+
+/home/tomas/Documents/HyPaBraBo/src/HPBB/HPBB.c
+stdio.h
+-
+DataStructure/LinkedQueue.h
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/LinkedQueue.h
+DataStructure/ParallelStack.h
+/home/tomas/Documents/HyPaBraBo/src/HPBB/DataStructure/ParallelStack.h
+include/HPBB.h
+/home/tomas/Documents/HyPaBraBo/src/HPBB/include/HPBB.h
+
+/home/tomas/Documents/HyPaBraBo/src/HPBB/Solver/Solver.c
+HPBB.h
+-
+stdio.h
+-
+stdlib.h
+-
+
+/home/tomas/Documents/HyPaBraBo/src/HPBB/include/HPBB.h
+
