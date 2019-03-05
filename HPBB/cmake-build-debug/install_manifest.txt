@@ -1,2 +1,0 @@
-/home/tomas/Documents/HyPaBraBo/src/HPBB/../build/libHPBB.a
-/home/tomas/Documents/HyPaBraBo/src/HPBB/../build/include/HPBB.h
