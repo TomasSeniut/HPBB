@@ -21,8 +21,7 @@ tsp_global ReadGlobalData(const char *fileName)
 {
     FILE *fp;
     fp = fopen(fileName, "r");
-
-    int cities;
+    int cities = 0;
 
     fscanf(fp, "# Cities: %d\n", &cities);
 

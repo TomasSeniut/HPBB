@@ -10,7 +10,7 @@ set(SOURCE_FILES
         utils.h
         IO/IO.h
         IO/IO.c
-        DataStructure.h)
+        DataStructure.h heuristics.c)
 
 include_directories(${CMAKE_SOURCE_DIR}/../../build/include)
 link_directories(${CMAKE_SOURCE_DIR}/../../build/)

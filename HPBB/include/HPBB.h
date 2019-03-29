@@ -1,7 +1,7 @@
 #ifndef HPBB_LIBRARY_H
 #define HPBB_LIBRARY_H
 
-typedef void (*HPBB_node_processing_pipeline)(void*);
+typedef void (*HPBB_node_processing)(void*);
 
 typedef struct {
     void (*init)(void);
@@ -16,10 +16,10 @@ typedef struct {
 } HPBB_queues;
 
 typedef struct {
-    void (*branch)(void* globalParameters, void* node, HPBB_node_processing_pipeline next);
-    int (*isSolution)(void* node);
-    int (*firstBetterThanSecond)(void*, void*);
-    void* (*lowerBound)(void* node);
+    void (*branch)(void* node, void* globalParameters, HPBB_node_processing next);
+    int (*isSolution)(void* node, void* globalParams);
+    int (*isSolutionBetterThanUpperBound)(void* node, void* upperBound, void* globalParams);
+    int (*isNodesLowerBoundBetterThanUpper)(void* node, void *upperBound, void* globalParams);
     void (*disposeNode)(void* node);
 } HPBB_algorithm_functions;
 

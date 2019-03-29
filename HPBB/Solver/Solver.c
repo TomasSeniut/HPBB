@@ -3,10 +3,10 @@
 #include <stdlib.h>
 
 static int _initialized = 0;
-static void* _upperBound;
+static void *_upperBound;
 static HPBB_queues _queues;
 static HPBB_algorithm_functions _functions;
-static void* _globalParameters;
+static void *_globalParameters;
 
 static void *branchAndBoundLoop();
 
@@ -28,14 +28,14 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
     return branchAndBoundLoop(initialProblem);
 }
 
-static void next(void* node) {
-    if (_functions.isSolution(node)) {
+void next(void *node) {
+    if (_functions.isSolution(node, _globalParameters)) {
 
-        if (_functions.firstBetterThanSecond(node, _upperBound)) {
+        if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
             #pragma omp critical
             {
-                if (_functions.firstBetterThanSecond(node, _upperBound)) {
-                    void* temp = _upperBound;
+                if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
+                    void *temp = _upperBound;
                     _upperBound = node;
                     node = temp;
                 }
@@ -46,8 +46,9 @@ static void next(void* node) {
         return;
     }
 
-    if (_functions.firstBetterThanSecond(_upperBound, _functions.lowerBound(node))) {
+    if (!_functions.isNodesLowerBoundBetterThanUpper(node, _upperBound, _globalParameters)) {
         _functions.disposeNode(node);
+
         return;
     }
 
@@ -58,16 +59,15 @@ static void *branchAndBoundLoop(void *initialProblem) {
     _queues.main.init();
     _queues.main.enQueue(initialProblem);
 
-    #pragma omp parallel
     {
         while (!_queues.main.isEmpty()) {
-            void* problem;
+            void *problem;
             int success = _queues.main.deQueue(&problem);
             if (!success) {
                 continue;
             }
 
-            _functions.branch(_globalParameters, problem, next);
+            _functions.branch(problem, _globalParameters, next);
             _functions.disposeNode(problem);
         }
     }
