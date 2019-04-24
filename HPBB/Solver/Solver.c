@@ -1,18 +1,30 @@
 #include <HPBB.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
+#include <MPI/mpiWrapper.h>
 
 static int _initialized = 0;
 static void *_upperBound;
-static HPBB_queues _queues;
-static HPBB_algorithm_functions _functions;
 static void *_globalParameters;
 
-static void *branchAndBoundLoop();
+static HPBB_queues _queues;
+static HPBB_algorithm_functions _functions;
+static HPBB_message_passing_functions _messagingFunctions;
 
-void HPBB_init_solver(HPBB_queues queues, HPBB_algorithm_functions functions) {
+static void loadBalancingBranchAndBoundLoop();
+
+static void branchAndBoundLoop();
+
+static void mainNodeProcessing(void *node);
+
+static void loadBalancingNodeProcessing(void *node);
+
+void HPBB_init_solver(HPBB_queues queues, HPBB_algorithm_functions functions,
+                      HPBB_message_passing_functions messagingFunctions) {
     _queues = queues;
     _functions = functions;
+    _messagingFunctions = messagingFunctions;
     _initialized = 1;
 }
 
@@ -25,40 +37,68 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
     _upperBound = upperBound;
     _globalParameters = globalParameters;
 
-    return branchAndBoundLoop(initialProblem);
-}
+    _queues.staticLoadBalancing.init();
+    _queues.staticLoadBalancing.enQueue(initialProblem);
 
-void next(void *node) {
-    if (_functions.isSolution(node, _globalParameters)) {
+    loadBalancingBranchAndBoundLoop();
 
-        if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
-            #pragma omp critical
-            {
-                if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
-                    void *temp = _upperBound;
-                    _upperBound = node;
-                    node = temp;
-                }
-            }
+    if (_queues.staticLoadBalancing.isEmpty()) {
+        return _upperBound;
+    }
+
+    int rank;
+    int size;
+    MPI_Wrapper_Init(&size, &rank, _messagingFunctions);
+
+    int order = 0;
+    int count = 0;
+    _queues.main.init();
+
+    while (!_queues.staticLoadBalancing.isEmpty()) {
+        void *queueElement = NULL;
+        _queues.staticLoadBalancing.deQueue(&queueElement);
+
+        if (queueElement == NULL) {
+            printf("`queueElement` should not be NULL here.");
         }
 
-        _functions.disposeNode(node);
-        return;
+        int destination = ++order % size;
+        if (destination == rank) {
+            count++;
+            _queues.main.enQueue(queueElement);
+        }
     }
 
-    if (!_functions.isNodesLowerBoundBetterThanUpper(node, _upperBound, _globalParameters)) {
-        _functions.disposeNode(node);
+    printf("I am process %d with %d threads and have stack of size %d\n", rank, omp_get_max_threads(), count);
 
-        return;
-    }
+    branchAndBoundLoop();
 
-    _queues.main.enQueue(node);
+    MPI_Wrapper_Synchronize(_upperBound, _globalParameters);
+    printf("Finished work on process %d\n", rank);
+
+    MPI_Wrapper_Finalize();
+
+    return _upperBound;
 }
 
-static void *branchAndBoundLoop(void *initialProblem) {
-    _queues.main.init();
-    _queues.main.enQueue(initialProblem);
+static void loadBalancingBranchAndBoundLoop() {
+    int i = 0;
+    while (i < 10 * omp_get_max_threads() * 10 && !_queues.staticLoadBalancing.isEmpty()) {
+        void *problem;
+        int success = _queues.staticLoadBalancing.deQueue(&problem);
+        if (!success) {
+            continue;
+        }
 
+        _functions.branch(problem, _globalParameters, loadBalancingNodeProcessing);
+        _functions.disposeNode(problem);
+
+        i++;
+    }
+}
+
+static void branchAndBoundLoop() {
+    #pragma omp parallel
     {
         while (!_queues.main.isEmpty()) {
             void *problem;
@@ -67,12 +107,60 @@ static void *branchAndBoundLoop(void *initialProblem) {
                 continue;
             }
 
-            _functions.branch(problem, _globalParameters, next);
+            _functions.branch(problem, _globalParameters, mainNodeProcessing);
             _functions.disposeNode(problem);
         }
     }
-
-    return _upperBound;
 }
 
+static void mainNodeProcessing(void *node) {
+    if (_functions.isSolution(node, _globalParameters)) {
 
+        if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
+            void *temp = NULL;
+
+            #pragma omp critical
+            {
+                MPI_Wrapper_Receive_Bound(node);
+
+                if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
+                    temp = _upperBound;
+                    _upperBound = node;
+
+                    MPI_Wrapper_Share_Bound(node);
+                }
+            }
+
+            if (temp != NULL) {
+                _functions.disposeNode(temp);
+                return;
+            }
+        }
+    }
+
+    if (!_functions.isLowerBoundOfNodeBetterThanUpperBound(node, _upperBound, _globalParameters)) {
+        _functions.disposeNode(node);
+        return;
+    }
+
+    _queues.main.enQueue(node);
+}
+
+static void loadBalancingNodeProcessing(void *node) {
+    if (_functions.isSolution(node, _globalParameters)) {
+
+        if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
+            void *temp = _upperBound;
+            _upperBound = node;
+            _functions.disposeNode(temp);
+        }
+    }
+
+    if (!_functions.isLowerBoundOfNodeBetterThanUpperBound(node, _upperBound, _globalParameters)) {
+
+        _functions.disposeNode(node);
+        return;
+    }
+
+    _queues.staticLoadBalancing.enQueue(node);
+}

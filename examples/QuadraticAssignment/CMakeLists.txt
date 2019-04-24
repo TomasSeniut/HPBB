@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7.2)
-project(TravelingSalesman C)
+project(QuadraticAssignment C)
 
 find_package(MPI REQUIRED)
 
@@ -23,6 +23,5 @@ set(SOURCE_FILES
 include_directories(${CMAKE_SOURCE_DIR}/../../build/include)
 link_directories(${CMAKE_SOURCE_DIR}/../../build/)
 
-add_executable(TravelingSalesman ${SOURCE_FILES})
-target_link_libraries(TravelingSalesman m HPBB)
-
+add_executable(QuadraticAssignment ${SOURCE_FILES})
+target_link_libraries(QuadraticAssignment m HPBB)

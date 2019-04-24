@@ -11,34 +11,36 @@ typedef struct {
 
 static int IsAllCitiesVisited(int n, const int cityArray[]);
 
-static neighbour FindNearestNeighbour(int currentCity, tsp_global params, int *visitedCities);
+static neighbour FindNearestNeighbour(int currentCity, tsp_global params, const int *visitedCities);
 
-stack_data NearestNeighbourMethod(tsp_global params) {
-    stack_data solution;
-    InitializeArray(params.cities, &solution.visited);
-    solution.city = 0;
-    solution.step = 0 ;
-    solution.visited[0] = solution.step + 1;
+stack_data *NearestNeighbourMethod(tsp_global params) {
+    stack_data *solution = malloc(sizeof(stack_data));
+    InitializeArray(params.cities, &solution->visited);
+
+    solution->city = 0;
+    solution->step = 0;
+    solution->pathLength = 0;
+    solution->visited[0] = solution->step + 1;
 
     for (int i = 0; i < params.cities; ++i) {
-        neighbour nearest = FindNearestNeighbour(solution.city, params, solution.visited);
+        neighbour nearest = FindNearestNeighbour(solution->city, params, solution->visited);
 
         if (nearest.city == -2) {
             printf("Something wrong");
             exit(3);
         }
 
-        solution.step++;
-        solution.visited[nearest.city] = solution.step + 1;
-        solution.city = nearest.city;
-        solution.pathLength += nearest.distance;
+        solution->step++;
+        solution->visited[nearest.city] = solution->step + 1;
+        solution->city = nearest.city;
+        solution->pathLength += nearest.distance;
     }
 
     return solution;
 }
 
-static neighbour FindNearestNeighbour(int currentCity, tsp_global params, int *visitedCities) {
-    neighbour nearest = { -2, DBL_MAX };
+static neighbour FindNearestNeighbour(int currentCity, tsp_global params, const int *visitedCities) {
+    neighbour nearest = {-2, DBL_MAX};
 
     for (int i = 0; i < params.cities; ++i) {
         if (visitedCities[i]) {
@@ -53,7 +55,7 @@ static neighbour FindNearestNeighbour(int currentCity, tsp_global params, int *v
     }
 
     if (IsAllCitiesVisited(params.cities, visitedCities)) {
-        nearest.city = -1;
+        nearest.city = 0;
         nearest.distance = params.distanceMatrix[currentCity][0];
     }
 

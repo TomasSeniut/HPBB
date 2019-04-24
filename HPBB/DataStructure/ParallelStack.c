@@ -8,8 +8,6 @@ static stack_node *_head;
 static omp_lock_t _lock;
 static int _numberOfThreads;
 
-static int _count = 0;
-
 static volatile int *_workFlags;
 
 void initStackParallel() {
@@ -37,8 +35,6 @@ void pushParallel(void* data) {
     tmp->next = _head;
     _head = tmp;
 
-    _count++;
-
     omp_unset_lock(&_lock);
 }
 
@@ -57,8 +53,6 @@ int popParallel(void** element) {
     _head = _head->next;
 
     free(tmp);
-
-    _count--;
 
     _workFlags[omp_get_thread_num()] = 1;
     omp_unset_lock(&_lock);
