@@ -50,8 +50,6 @@ void ReadItemsData(FILE *fp, ItemWithIndex items[])
         sscanf(buffer, "%d %d %d\n", &(items[i].index), &(items[i].weight), &(items[i].price));
         i++;
     }
-
-    fclose(fp);
 }
 
 
