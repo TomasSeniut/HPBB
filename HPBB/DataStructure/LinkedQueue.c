@@ -9,7 +9,6 @@ typedef struct {
 } Queue;
 
 static Queue *_queue;
-static int _elementCount;
 
 void initQueue()
 {
@@ -19,8 +18,6 @@ void initQueue()
 
 void enQueue(void* data)
 {
-    _elementCount++;
-
     stack_node *tmp = (stack_node *) malloc(sizeof(stack_node));
     if (tmp == NULL) {
         exit(222);
@@ -41,8 +38,6 @@ void enQueue(void* data)
 
 int deQueue(void** data)
 {
-    _elementCount--;
-
     *data = _queue->front->data;
 
     _queue->front = _queue->front->next;
@@ -52,11 +47,6 @@ int deQueue(void** data)
     }
 
     return 1;
-}
-
-int queueSize()
-{
-    return _elementCount;
 }
 
 int isQueueEmpty()

@@ -92,6 +92,7 @@ static void loadBalancingBranchAndBoundLoop() {
         _functions.branch(problem, _globalParameters, loadBalancingNodeProcessing);
         _functions.disposeNode(problem);
 
+        #pragma omp atomic
         i++;
     }
 }
@@ -118,7 +119,7 @@ static void mainNodeProcessing(void *node) {
         if (_functions.isSolutionBetterThanUpperBound(node, _upperBound, _globalParameters)) {
             void *temp = NULL;
 
-            #pragma omp critical
+            #pragma omp critical(mainUpperBoundUpdate)
             {
                 MPI_Wrapper_Receive_Bound(node);
 
@@ -152,6 +153,7 @@ static void loadBalancingNodeProcessing(void *node) {
             void *temp = _upperBound;
             _upperBound = node;
             _functions.disposeNode(temp);
+            return;
         }
     }
 

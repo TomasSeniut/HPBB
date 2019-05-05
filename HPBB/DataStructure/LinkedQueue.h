@@ -6,7 +6,6 @@
 void initQueue();
 void enQueue(void* data);
 int deQueue(void** data);
-int queueSize();
 int isQueueEmpty();
 
 #endif //TRAVELINGSALESMAN_LINKEDQUEUE_H
