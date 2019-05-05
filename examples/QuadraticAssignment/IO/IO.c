@@ -2,7 +2,10 @@
 
 qa_global ReadGlobalData(const char *fileName) {
     FILE *fp;
-    fp = fopen(fileName, "r");
+    if (!(fp = fopen(fileName, "r"))) {
+        printf("Files does not exists\n");
+        exit(121212);
+    }
 
     qa_global params;
 

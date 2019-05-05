@@ -20,7 +20,11 @@ void ExtractCoordinates(FILE *fp, City cities[]) {
 tsp_global ReadGlobalData(const char *fileName)
 {
     FILE *fp;
-    fp = fopen(fileName, "r");
+    if (!(fp = fopen(fileName, "r"))) {
+        printf("Files does not exists\n");
+        exit(121212);
+    }
+
     int cities = 0;
 
     fscanf(fp, "# Cities: %d\n", &cities);
