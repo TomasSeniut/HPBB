@@ -41,4 +41,5 @@ void PrintResult(qa_global params, stack_data solution) {
     for (int i = 0; i < params.locations; ++i) {
         printf("%d:%d ", i, solution.assignment[i]);
     }
+    printf("\n");
 }

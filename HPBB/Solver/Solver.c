@@ -20,8 +20,7 @@ static void mainNodeProcessing(void *node);
 
 static void loadBalancingNodeProcessing(void *node);
 
-void HPBB_init_solver(HPBB_queues queues, HPBB_algorithm_functions functions,
-                      HPBB_message_passing_functions messagingFunctions) {
+void HPBB_init_solver(HPBB_queues queues, HPBB_algorithm_functions functions, HPBB_message_passing_functions messagingFunctions) {
     _queues = queues;
     _functions = functions;
     _messagingFunctions = messagingFunctions;
