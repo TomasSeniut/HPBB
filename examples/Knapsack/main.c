@@ -97,7 +97,7 @@ HPBB_message_passing_solution_array ks_selectSolutionArray(stack_data *node, kna
 HPBB_message_passing_bound_indication ks_receiveBoundIndication() {
     int *someBound = malloc(sizeof(int));
     HPBB_message_passing_bound_indication data = {
-            .bound = &someBound,
+            .bound = someBound,
             .type = MPI_INT
     };
 
