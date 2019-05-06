@@ -72,9 +72,9 @@ HPBB_message_passing_solution_array qa_selectSolutionArray(stack_data *node, qa_
 }
 
 HPBB_message_passing_bound_indication qa_receiveBoundIndication() {
-    long someBound;
+    long *someBound = malloc(sizeof(long));
     HPBB_message_passing_bound_indication data = {
-            .bound = &someBound,
+            .bound = someBound,
             .type = MPI_LONG
     };
 
@@ -83,6 +83,8 @@ HPBB_message_passing_bound_indication qa_receiveBoundIndication() {
 
 int qa_updateBoundIndication(void *receivedBound, stack_data *node) {
     long bound = *(long*)receivedBound;
+
+    free(receivedBound);
 
     if (node->cost >= bound) {
         node->cost = bound;

@@ -8,6 +8,8 @@ static int _initialized = 0;
 static void *_upperBound;
 static void *_globalParameters;
 
+static int _loadBalancingSize = 0;
+
 static HPBB_queues _queues;
 static HPBB_algorithm_functions _functions;
 static HPBB_message_passing_functions _messagingFunctions;
@@ -49,7 +51,6 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
     int size;
     MPI_Wrapper_Init(&size, &rank, _messagingFunctions);
 
-    int order = 0;
     int count = 0;
     _queues.main.init();
 
@@ -61,9 +62,8 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
             printf("`queueElement` should not be NULL here.");
         }
 
-        int destination = ++order % size;
+        int destination = ++count % size;
         if (destination == rank) {
-            count++;
             _queues.main.enQueue(queueElement);
         }
     }
@@ -81,8 +81,10 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
 }
 
 static void loadBalancingBranchAndBoundLoop() {
-    int i = 0;
-    while (i < 10 * omp_get_max_threads() * 10 && !_queues.staticLoadBalancing.isEmpty()) {
+    _loadBalancingSize = 0;
+    int maxBalancingSize = 10 * omp_get_max_threads() * 10;
+
+    while (_loadBalancingSize < maxBalancingSize && !_queues.staticLoadBalancing.isEmpty()) {
         void *problem;
         int success = _queues.staticLoadBalancing.deQueue(&problem);
         if (!success) {
@@ -91,9 +93,6 @@ static void loadBalancingBranchAndBoundLoop() {
 
         _functions.branch(problem, _globalParameters, loadBalancingNodeProcessing);
         _functions.disposeNode(problem);
-
-        #pragma omp atomic
-        i++;
     }
 }
 
@@ -162,6 +161,9 @@ static void loadBalancingNodeProcessing(void *node) {
         _functions.disposeNode(node);
         return;
     }
+
+    #pragma omp atomic
+    _loadBalancingSize++;
 
     _queues.staticLoadBalancing.enQueue(node);
 }

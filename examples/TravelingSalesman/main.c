@@ -75,9 +75,9 @@ HPBB_message_passing_solution_array tsp_selectSolutionArray(stack_data *node, ts
 }
 
 HPBB_message_passing_bound_indication tsp_receiveBoundIndication() {
-    double someBound;
+    double *someBound = malloc(sizeof(double));
     HPBB_message_passing_bound_indication data = {
-        .bound = &someBound,
+        .bound = someBound,
         .type = MPI_DOUBLE
     };
 
@@ -86,6 +86,8 @@ HPBB_message_passing_bound_indication tsp_receiveBoundIndication() {
 
 int tsp_updateBoundIndication(void *receivedBound, stack_data *node) {
     double bound = *(double*)receivedBound;
+
+    free(receivedBound);
 
     if (node->pathLength >= bound) {
         node->pathLength = bound;

@@ -95,7 +95,7 @@ HPBB_message_passing_solution_array ks_selectSolutionArray(stack_data *node, kna
 }
 
 HPBB_message_passing_bound_indication ks_receiveBoundIndication() {
-    int someBound;
+    int *someBound = malloc(sizeof(int));
     HPBB_message_passing_bound_indication data = {
             .bound = &someBound,
             .type = MPI_INT
@@ -106,6 +106,8 @@ HPBB_message_passing_bound_indication ks_receiveBoundIndication() {
 
 int ks_updateBoundIndication(void *receivedBound, stack_data *node) {
     int bound = *(int*)receivedBound;
+
+    free(receivedBound);
 
     if (node->price <= bound) {
         node->price = bound;
