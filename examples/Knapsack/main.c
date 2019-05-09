@@ -6,16 +6,12 @@
 #include "IO/IO.h"
 #include "utils.h"
 
-static long count = 0;
-
 stack_data *highestValueWeightRatio(knapsack_global params);
 
 static int getKnapsackLowerBound(stack_data problem, knapsack_global params);
 
 void ks_branch(stack_data *node, knapsack_global *params, HPBB_node_processing next) {
     int nextIndex = node->current + 1;
-
-    count++;
 
     if (nextIndex > params->count) {
         return;
@@ -167,11 +163,7 @@ int main(int argc, char* argv[]) {
 static int getKnapsackLowerBound(stack_data problem, knapsack_global params) {
     Item running = { .price = problem.price, .weight = problem.weight };
 
-    for (int i = 0; i < params.count; ++i) {
-        if (i <= problem.current) {
-            continue;
-        }
-
+    for (int i = problem.current; i < params.count; ++i) {
         int weight = running.weight + params.items[i].weight;
 
         if (weight >= params.weight) {

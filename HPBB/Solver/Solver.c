@@ -82,7 +82,7 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
 
 static void loadBalancingBranchAndBoundLoop() {
     _loadBalancingSize = 0;
-    int maxBalancingSize = 10 * omp_get_max_threads() * 10;
+    int maxBalancingSize = 10 * 8 * 10;
 
     while (_loadBalancingSize < maxBalancingSize && !_queues.staticLoadBalancing.isEmpty()) {
         void *problem;
@@ -109,6 +109,8 @@ static void branchAndBoundLoop() {
             _functions.branch(problem, _globalParameters, mainNodeProcessing);
             _functions.disposeNode(problem);
         }
+
+        printf("Thread: %d finished working\n", omp_get_thread_num());
     }
 }
 
