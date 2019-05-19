@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <MPI/mpiWrapper.h>
+#include <DataStructure/ParallelStack.h>
 
 static int _initialized = 0;
 static void *_upperBound;
@@ -76,6 +77,8 @@ void *HPBB_solve(void *initialProblem, void *upperBound, void *globalParameters)
     printf("Finished work on process %d\n", rank);
 
     MPI_Wrapper_Finalize();
+
+    destroyStack();
 
     return _upperBound;
 }

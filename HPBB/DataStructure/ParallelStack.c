@@ -12,6 +12,8 @@ static volatile int *_workFlags;
 
 static void **_localStore;
 
+static long _count = 0;
+
 void initStackParallel() {
     _head = NULL;
 
@@ -33,6 +35,9 @@ void initStackParallel() {
 void pushParallel(void* data) {
     if (_localStore[omp_get_thread_num()] == NULL) {
         _localStore[omp_get_thread_num()] = data;
+
+        #pragma omp atomic
+        _count++;
         return;
     }
 
@@ -46,6 +51,8 @@ void pushParallel(void* data) {
     tmp->data = data;
     tmp->next = _head;
     _head = tmp;
+
+    _count++;
 
     omp_unset_lock(&_lock);
 }
@@ -104,6 +111,8 @@ int isEmptyParallel() {
 }
 
 void destroyStack() {
+    printf("Total elements processed: %ld\n", _count);
+
     omp_destroy_lock(&_lock);
     free((void*)_workFlags);
     free(_localStore);
